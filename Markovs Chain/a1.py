@@ -59,7 +59,7 @@ class A1:
             return
         
         random.seed(random_seed)
-        self.samples = np.empty(length + 1, dtype=object)  
+        samples = np.empty(length + 1, dtype=object)  
 
         #                     |------------0.4---------0.6-----------1|
         # transition to state:     A             B           C 
@@ -78,23 +78,24 @@ class A1:
         #print(state_change_divider)
 
         # generate sample
-        for i in range(len(self.samples)):
+        for i in range(len(samples)):
             if i == 0:
-                self.samples[i] = first_state
+                samples[i] = first_state
                 continue
 
             random_number = random.uniform(0, 1) #allows decimals
-            current_state_index = self.potential_states[self.samples[i - 1]]
+            current_state_index = self.potential_states[samples[i - 1]]
 
             for j in range(len(state_change_divider[current_state_index])):
                 if random_number < state_change_divider[current_state_index][j]:
-                    self.samples[i] = self.potential_states_1[j]
+                    samples[i] = self.potential_states_1[j]
                     break
 
         #print("sample")
         #print(self.samples)
-        print(self.samples)
-        return self.samples
+        print(samples)
+        self.samples = samples
+        return samples
 
     def stationary_distribution(self):
         """
@@ -102,9 +103,13 @@ class A1:
         Returns: The stationary distribution as a 1D numpy array.
         """
         # Solve π * P = π for stationary distribution using eigenvector approach
-        
+        eigenvalues, eigenvectors = np.linalg.eig(self.transition_matrix.T)
+        stationary_vec = eigenvectors[:, np.isclose(eigenvalues, 1)]
         
         # Normalize the stationary distribution
+        stationary_vec = stationary_vec / stationary_vec.sum()
+        print(stationary_vec.real.flatten())
+        return stationary_vec.real.flatten()
         
 
 
@@ -120,3 +125,4 @@ markov_chain_generator = A1()
 # generate_transiton matrix
 markov_chain_generator.generate_markov_chain(potential_states, sequence_of_states)
 markov_chain_generator.generate_samples("Cloudy", 24, 15)
+markov_chain_generator.stationary_distribution()

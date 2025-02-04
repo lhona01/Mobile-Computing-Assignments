@@ -1,17 +1,15 @@
 import numpy as np
 import math
 
+# Encrypts/decrypts binary messages ex: 010011...... using Learnin with error (LWE) algorithm
 class A2:
     def __init__(self):
-        pass
+        self.secret_key = None
 
     # int [][], int [], int [], int ; return []
     def generate_public_key_vector(self, matrix_A, secret_key_s, error_vector_e, modulus_p):
-        print("matrix_A:", matrix_A)
-        print("secret_key_s:", secret_key_s)
-        print("error_vector_e:", error_vector_e)
-        print("modulus_p:", modulus_p)
-
+        self.secret_key = secret_key_s
+        print("secret_key", secret_key_s)
         result = np.zeros(len(matrix_A))
 
         for i in range(0, len(matrix_A)):
@@ -25,10 +23,6 @@ class A2:
     
     # (int[][], int[]), int, , int
     def encrypt(self, public_key, rand_binary_vector, message, modulus):
-        print("public_key:", public_key)
-        print("rand_binary_vector:", rand_binary_vector)
-        print("message:", message)
-        print("modulus:", modulus)
         matrix_A = public_key[0]
         key_vector = public_key[1]
         sum_valid_rows_A = np.zeros(len(matrix_A[0]))
@@ -46,16 +40,33 @@ class A2:
         for i in range(0, len(sum_valid_rows_A)):
             sum_valid_rows_A[i] = sum_valid_rows_A[i] % modulus
         
-        # encrypt message
+        # encrypt binary
         if message == 1:
             return (sum_valid_rows_A, (sum_key_vector + math.floor(modulus / 2)) % modulus)
         elif message == 0:
             return (sum_valid_rows_A, sum_key_vector % modulus)
     
-    #def decrypt(private_key, ciphertext, modulus):
+    # int[], int([], int) , int
+    def decrypt(self, private_key, ciphertext, modulus):
+        print("ciphertext:", ciphertext)
+        print("modulus:", modulus)
+        print("private_key", private_key)
+        mod_div_2 = math.floor(modulus / 2)
 
+        enc = (ciphertext[1] - (np.dot(ciphertext[0], self.secret_key) % modulus)) % modulus
+        close_to_0 = enc
+        close_to_mod_div_2 = abs(enc - mod_div_2)
+
+        if close_to_0 < close_to_mod_div_2:
+            return 0
+        else:
+            return 1
+
+
+# Test Case
+'''
 A = [[19, 8, 1, 14], [3, 11, 20, 23], [5, 5, 23, 9]]
-s = [4, 1, 2, 3]
+s = [4, 7, 16, 9, 13, 11, 1, 18, 5, 10]
 e = [-1, 1, 0]
 p = 7
 
@@ -64,4 +75,9 @@ b = a2.generate_public_key_vector(A,s,e,p)
 
 public_key = (A, b)
 
-apple = a2.encrypt(public_key, [1, 1, 0], 1, 7)
+#apple = a2.encrypt(public_key, [1, 1, 0], 1, 7)
+
+print(a2.decrypt([4,7,16,9,13,11,1,18,5,10], ([ 9, 6, 3, 0, 7, 9, 10, 8, 4, 1], 12), 15))
+
+#expected = 1, returned = 0
+'''

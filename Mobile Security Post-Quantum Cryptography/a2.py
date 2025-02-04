@@ -6,7 +6,12 @@ class A2:
         pass
 
     # int [][], int [], int [], int ; return []
-    def generate_public_key_vector(matrix_A, secret_key_s, error_vector_e, modulus_p):
+    def generate_public_key_vector(self, matrix_A, secret_key_s, error_vector_e, modulus_p):
+        print("matrix_A:", matrix_A)
+        print("secret_key_s:", secret_key_s)
+        print("error_vector_e:", error_vector_e)
+        print("modulus_p:", modulus_p)
+
         result = np.zeros(len(matrix_A))
 
         for i in range(0, len(matrix_A)):
@@ -16,16 +21,18 @@ class A2:
                 sum_row_x_s += matrix_A[i][j] * secret_key_s[j]
 
             result[i] = (sum_row_x_s + error_vector_e[i]) % modulus_p
-
         return result
     
-    # (int[][], int[]), int[], , int
-    def encrypt(public_key, rand_binary_vector, message, modulus):
+    # (int[][], int[]), int, , int
+    def encrypt(self, public_key, rand_binary_vector, message, modulus):
+        print("public_key:", public_key)
+        print("rand_binary_vector:", rand_binary_vector)
+        print("message:", message)
+        print("modulus:", modulus)
         matrix_A = public_key[0]
         key_vector = public_key[1]
         sum_valid_rows_A = np.zeros(len(matrix_A[0]))
         sum_key_vector = 0
-        result = np.array(len(2))
 
         for i in range(0, len(rand_binary_vector)):
             if (rand_binary_vector[i] == 1):
@@ -40,13 +47,21 @@ class A2:
             sum_valid_rows_A[i] = sum_valid_rows_A[i] % modulus
         
         # encrypt message
-        for msg in message:
-            if msg == 1:
-                result[0] = (sum_valid_rows_A, (sum_key_vector + math.floor(modulus / 2)) % modulus)
-            elif msg == 0:
-                result[1] = (sum_valid_rows_A, sum_key_vector % modulus)
-
-        return result # returns [(int[], int), (int[], int)]
+        if message == 1:
+            return (sum_valid_rows_A, (sum_key_vector + math.floor(modulus / 2)) % modulus)
+        elif message == 0:
+            return (sum_valid_rows_A, sum_key_vector % modulus)
     
-
     #def decrypt(private_key, ciphertext, modulus):
+
+A = [[19, 8, 1, 14], [3, 11, 20, 23], [5, 5, 23, 9]]
+s = [4, 1, 2, 3]
+e = [-1, 1, 0]
+p = 7
+
+a2 = A2()
+b = a2.generate_public_key_vector(A,s,e,p)
+
+public_key = (A, b)
+
+apple = a2.encrypt(public_key, [1, 1, 0], 1, 7)

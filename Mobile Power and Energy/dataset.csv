@@ -1,0 +1,9 @@
+﻿Application,CPU_Usage_Percent,Memory_Usage_MB,Network_Activity_KB,Disk_IO_MB,Execution_Time_s
+App_1,30,200,500,10,5
+App_2,50,300,700,20,10
+App_3,70,400,1000,30,8
+App_4,20,100,200,5,3
+App_5,40,250,600,15,6
+App_6,60,350,800,25,12
+App_7,80,450,1200,35,15
+App_8,10,50,100,2,2

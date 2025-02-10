@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import copy
 
 class A3:
     dataset = None
@@ -107,9 +108,22 @@ class A3:
     the power consumption as a 4-tuple: CPU Usage, Memory Usage, Network Activity, Disk IO.
     '''
     def calculate_power_sensitivity(self, weight):
-        pass
+        power_contribution_of_metric = copy.deepcopy(self.dataset)
+        total_power_contribution = np.empty(len(weight))
 
-""" a3 = A3()
+        for i in range(len(power_contribution_of_metric)):
+            for j in range(len(weight)):
+                power_contribution_of_metric[i][j + 1] = weight[j] * (power_contribution_of_metric[i][j + 1] / power_contribution_of_metric[i][-1])
+                total_power_contribution[j] += power_contribution_of_metric[i][j + 1]
+
+        total_power_consumption = np.sum(total_power_contribution)
+
+        for i in range(len(total_power_contribution)):
+            total_power_contribution[i] = (total_power_contribution[i] / total_power_consumption) * 100
+
+        return tuple(np.round(total_power_contribution)) 
+
+a3 = A3()
 a3.read_dataset()
 energy_stat = a3.generate_energy_statistics([1,2,3,4])
 print("energy_stats (J):")
@@ -125,4 +139,6 @@ power_stat = a3.generate_power_statistic([1,2,3,4])
 print("power_stat (W):")
 print("avg power consumed:", power_stat[0],
     "|highest power consumed by:", power_stat[1],
-    "|lowest power consmed by:", power_stat[2]) """
+    "|lowest power consmed by:", power_stat[2])
+power_sensitivity = a3.calculate_power_sensitivity([1,1,1,1])
+print("idiot:", power_sensitivity)

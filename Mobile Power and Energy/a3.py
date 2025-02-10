@@ -61,25 +61,28 @@ class A3:
     the energy consumption as a 4-tuple: CPU Usage, Memory Usage, Network Activity, Disk IO.
     '''
     def calculate_energy_sensitivites(self, weight):
-        sum_metric_contributions = np.empty(len(weight))
+        sum = np.zeros(len(weight))
 
         for i in range(len(self.dataset)):
-            for j in range(len(sum_metric_contributions)):
-                sum_metric_contributions[j] += weight[j] * self.dataset[i][j + 1]
-        
-        total_energy_consumption = np.sum(sum_metric_contributions)
-        
-        for i in range(len(sum_metric_contributions)):
-            sum_metric_contributions[i] = (sum_metric_contributions[i] / total_energy_consumption) * 100
+            for j in range(len(sum)):
+                sum[j] += self.dataset[i][j + 1]
 
-        return tuple(np.round(sum_metric_contributions, 2))
+        for i in range(len(weight)):
+            sum[i] = weight[i] * sum[i]
+        
+        total_weighted_sum = np.sum(sum)
+        
+        for i in range(len(sum)):
+            sum[i] = round((sum[i] / total_weighted_sum) * 100, 2)
+
+        return tuple(sum)
 
     '''
      computes and returns the following statistics as a 3-tuple: average power
      consumption across all applications, application with the highest power consumption,
      application with the lowest power consumption.
     '''
-    def generate_power_statistic(self, weight):
+    def generate_power_statistics(self, weight):
         avg_power_consumption = 0
         highest_power_consumer_app = None
         lowest_power_consumer_app = None
@@ -107,23 +110,26 @@ class A3:
     computes and returns the sensitivities of the following four (4) metrics on
     the power consumption as a 4-tuple: CPU Usage, Memory Usage, Network Activity, Disk IO.
     '''
-    def calculate_power_sensitivity(self, weight):
-        power_contribution_of_metric = copy.deepcopy(self.dataset)
-        total_power_contribution = np.empty(len(weight))
+    def calculate_power_sensitivites(self, weight):
+        power_contribution = copy.deepcopy(self.dataset)
+        sum_power_contribution = np.zeros(len(weight))
 
-        for i in range(len(power_contribution_of_metric)):
+        for i in range(len(power_contribution)):
             for j in range(len(weight)):
-                power_contribution_of_metric[i][j + 1] = weight[j] * (power_contribution_of_metric[i][j + 1] / power_contribution_of_metric[i][-1])
-                total_power_contribution[j] += power_contribution_of_metric[i][j + 1]
+                sum_power_contribution[j] += weight[j] * power_contribution[i][j + 1] / power_contribution[i][-1]
 
-        total_power_consumption = np.sum(total_power_contribution)
+        print("sum power contribution:", sum_power_contribution)
 
-        for i in range(len(total_power_contribution)):
-            total_power_contribution[i] = (total_power_contribution[i] / total_power_consumption) * 100
+        total_power_consumption = np.sum(sum_power_contribution)
+        
+        print("total power consumption:", total_power_consumption)
 
-        return tuple(np.round(total_power_contribution)) 
+        for i in range(len(sum_power_contribution)):
+            sum_power_contribution[i] = round((sum_power_contribution[i] / total_power_consumption) * 100, 2)
 
-a3 = A3()
+        return tuple(sum_power_contribution) 
+
+""" a3 = A3()
 a3.read_dataset()
 energy_stat = a3.generate_energy_statistics([1,2,3,4])
 print("energy_stats (J):")
@@ -135,10 +141,10 @@ print("CPU_Usage:", energy_sensitivity[0],
     "|Memory_Usage:", energy_sensitivity[1],
     "|Network_Activity:", energy_sensitivity[2],
     "|Disk_IO:", energy_sensitivity[3])
-power_stat = a3.generate_power_statistic([1,2,3,4])
+power_stat = a3.generate_power_statistics([1,2,3,4])
 print("power_stat (W):")
 print("avg power consumed:", power_stat[0],
     "|highest power consumed by:", power_stat[1],
     "|lowest power consmed by:", power_stat[2])
-power_sensitivity = a3.calculate_power_sensitivity([1,1,1,1])
-print("idiot:", power_sensitivity)
+power_sensitivity = a3.calculate_power_sensitivites([0.487181523511909, 0.225636971389667, 0.2513629367682, 0.0358185683302224])
+print("idiot:", power_sensitivity) """
